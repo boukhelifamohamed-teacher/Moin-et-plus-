@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الأعداد النسبية - السنة الثانية متوسط</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 50%, #1a472a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: linear-gradient(145deg, #0d2818, #1a472a);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 
+                        inset 0 1px 0 rgba(212, 175, 55, 0.3);
+            border: 2px solid #d4af37;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            color: #d4af37;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #98b898;
+            font-size: 1rem;
+        }
+
+        .score-timer-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-box, .timer-box {
+            background: linear-gradient(145deg, #d4af37, #b8962e);
+            color: #0d2818;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .timer-box.warning {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .question-number {
+            color: #d4af37;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #fff;
+            font-size: 1.5rem;
+            text-align: center;
+            direction: ltr;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: linear-gradient(145deg, #2d5a3d, #1a472a);
+            color: #fff;
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            direction: ltr;
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(145deg, #d4af37, #b8962e);
+            color: #0d2818;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(145deg, #28a745, #218838);
+            border-color: #28a745;
+            animation: correctAnswer 0.5s ease;
+        }
+
+        .option-btn.wrong {
+            background: linear-gradient(145deg, #dc3545, #c82333);
+            border-color: #dc3545;
+            animation: wrongAnswer 0.5s ease;
+        }
+
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes wrongAnswer {
+            0%, 25%, 50%, 75%, 100% { transform: translateX(0); }
+            12.5%, 62.5% { transform: translateX(-5px); }
+            37.5%, 87.5% { transform: translateX(5px); }
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .input-answer {
+            width: 150px;
+            padding: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            direction: ltr;
+        }
+
+        .input-answer:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .submit-btn {
+            background: linear-gradient(145deg, #d4af37, #b8962e);
+            color: #0d2818;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .subtraction-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            direction: ltr;
+            margin-bottom: 15px;
+        }
+
+        .subtraction-container input {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .subtraction-container input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .subtraction-container span {
+            color: #d4af37;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .algebraic-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .algebraic-label {
+            color: #d4af37;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .algebraic-expression-input {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            direction: ltr;
+            padding: 5px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+        }
+
+        .algebraic-expression-input input {
+            width: 38px;
+            padding: 4px 2px;
+            font-size: 0.75rem;
+            text-align: center;
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .algebraic-expression-input input:focus {
+            outline: none;
+            box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
+        }
+
+        .algebraic-expression-input span {
+            color: #d4af37;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .algebraic-calculation-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            direction: ltr;
+            padding: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+        }
+
+        .algebraic-calculation-row input {
+            width: 65px;
+            padding: 8px 4px;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 2px solid #d4af37;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .algebraic-calculation-row input:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+        }
+
+        .algebraic-calculation-row input.result-input {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.2);
+        }
+
+        .algebraic-calculation-row .op-sign {
+            color: #d4af37;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+
+        .calc-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .calc-label {
+            color: #98b898;
+            font-size: 0.65rem;
+            text-align: center;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        .calc-group.result-group .calc-label {
+            color: #28a745;
+        }
+
+        .hint-box {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .hint-box.correct {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: #28a745;
+        }
+
+        .hint-box.wrong {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: #dc3545;
+        }
+
+        .hint-box h4 {
+            color: #d4af37;
+            margin-bottom: 5px;
+        }
+
+        .hint-box.correct h4 {
+            color: #28a745;
+        }
+
+        .hint-box.wrong h4 {
+            color: #dc3545;
+        }
+
+        .hint-box p {
+            color: #fff;
+            direction: ltr;
+            font-size: 1.1rem;
+        }
+
+        .menu-container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(145deg, #d4af37, #b8962e);
+            color: #0d2818;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+        }
+
+        .rules-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .rules-box h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+
+        .rules-box ul {
+            list-style: none;
+            color: #98b898;
+        }
+
+        .rules-box li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .rules-box li:last-child {
+            border-bottom: none;
+        }
+
+        .rules-box li span {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: #d4af37;
+            color: #0d2818;
+        }
+
+        .next-btn {
+            background: linear-gradient(145deg, #28a745, #218838);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.5);
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #d4af37;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer p {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f4d03f);
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+
+        @media (max-width: 520px) {
+            .container {
+                padding: 20px 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+                padding: 10px;
+            }
+
+            .subtraction-container {
+                gap: 4px;
+            }
+
+            .subtraction-container input {
+                width: 55px;
+                padding: 8px 4px;
+                font-size: 0.9rem;
+            }
+
+            .subtraction-container span {
+                font-size: 1rem;
+            }
+
+            .algebraic-expression-input {
+                gap: 1px;
+            }
+
+            .algebraic-expression-input input {
+                width: 32px;
+                padding: 3px 1px;
+                font-size: 0.7rem;
+            }
+
+            .algebraic-expression-input span {
+                font-size: 0.7rem;
+            }
+
+            .score-box, .timer-box {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .algebraic-calculation-row {
+                gap: 4px;
+                padding: 8px;
+            }
+
+            .algebraic-calculation-row input {
+                width: 50px;
+                padding: 6px 2px;
+                font-size: 0.75rem;
+            }
+
+            .algebraic-calculation-row .op-sign {
+                font-size: 1rem;
+                padding-bottom: 6px;
+            }
+
+            .calc-label {
+                font-size: 0.55rem;
+            }
+
+            .algebraic-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #d4af37;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translateY(-50px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- القائمة الرئيسية -->
+        <div id="menu-screen">
+            <div class="header">
+                <h1>🔢 لعبة الأعداد النسبية</h1>
+                <p>للتلاميذ - السنة الثانية متوسط</p>
+            </div>
+            <div class="menu-container">
+                <button class="menu-btn" id="btn-addition">➕ الجمع</button>
+                <button class="menu-btn" id="btn-subtraction">➖ الطرح</button>
+                <button class="menu-btn" id="btn-algebraic">🧮 المجموع الجبري</button>
+                
+                <div class="rules-box">
+                    <h3>📋 قواعد اللعبة</h3>
+                    <ul>
+                        <li>✅ الإجابة الصحيحة: <span>+2 نقطة</span></li>
+                        <li>❌ الإجابة الخاطئة: <span>-1 نقطة</span></li>
+                        <li>⏱️ الوقت لكل سؤال: <span>90 ثانية</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- شاشة اللعب -->
+        <div id="game-screen" class="hidden">
+            <div class="header">
+                <h1 id="game-title">🔢 الجمع</h1>
+            </div>
+            
+            <div class="score-timer-container">
+                <div class="score-box">النقاط: <span id="score">0</span></div>
+                <div class="timer-box" id="timer-box">⏱️ <span id="timer">90</span></div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-number">السؤال <span id="question-num">1</span></div>
+                <div class="question-text" id="question-text"></div>
+                
+                <!-- خيارات الاختيار من متعدد -->
+                <div id="multiple-choice" class="options-container hidden"></div>
+                
+                <!-- إدخال الجواب -->
+                <div id="input-answer" class="input-container hidden">
+                    <input type="number" step="0.1" class="input-answer" id="answer-input" placeholder="الجواب">
+                    <button class="submit-btn" id="btn-check-input">تحقق</button>
+                </div>
+                
+                <!-- إدخال الطرح -->
+                <div id="subtraction-input" class="hidden">
+                    <p style="color: #98b898; text-align: center; margin-bottom: 15px;">أعد كتابة الطرح كجمع مع المعاكس:</p>
+                    <div class="subtraction-container" id="subtraction-expression"></div>
+                    <div style="text-align: center;">
+                        <button class="submit-btn" id="btn-check-subtraction">تحقق</button>
+                    </div>
+                </div>
+                
+                <!-- إدخال المجموع الجبري -->
+                <div id="algebraic-input" class="hidden">
+                    <!-- قسم المعادلة المحولة -->
+                    <div class="algebraic-section">
+                        <div class="algebraic-label">الخطوة الأولى: تحويل الطرح إلى جمع</div>
+                        <div class="algebraic-expression-input" id="algebraic-expression"></div>
+                    </div>
+                    
+                    <!-- قسم الحسابات -->
+                    <div class="algebraic-section">
+                        <div class="algebraic-label">الخطوة الثانية: حساب النتيجة</div>
+                        <div class="algebraic-calculation-row">
+                            <div class="calc-group">
+                                <span class="calc-label">مجموع الموجبات</span>
+                                <input type="number" step="0.1" id="positive-sum" placeholder="0">
+                            </div>
+                            <span class="op-sign">+</span>
+                            <div class="calc-group">
+                                <span class="calc-label">مجموع السالبات</span>
+                                <input type="number" step="0.1" id="negative-sum" placeholder="0">
+                            </div>
+                            <span class="op-sign">=</span>
+                            <div class="calc-group result-group">
+                                <span class="calc-label">النتيجة</span>
+                                <input type="number" step="0.1" id="algebraic-result" class="result-input" placeholder="?">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="submit-btn" id="btn-check-algebraic">تحقق من الإجابة</button>
+                    </div>
+                </div>
+                
+                <!-- صندوق التلميح -->
+                <div id="hint-box" class="hint-box hidden">
+                    <h4 id="hint-title"></h4>
+                    <p id="hint-text"></p>
+                    <button class="next-btn" id="btn-next">السؤال التالي ➡️</button>
+                </div>
+            </div>
+            
+            <button class="back-btn" id="btn-back">🏠 العودة للقائمة</button>
+        </div>
+        
+        <div class="footer">
+            <p>✨ تم تصميم هذا التطبيق من طرف الأستاذ بوخليفة محمد ✨</p>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات اللعبة
+        let gameMode = '';
+        let score = 0;
+        let questionNum = 0;
+        let currentQuestion = null;
+        let timer = 90;
+        let timerInterval = null;
+        let answered = false;
+
+        // عناصر DOM
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameTitle = document.getElementById('game-title');
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+        const timerBox = document.getElementById('timer-box');
+        const progressFill = document.getElementById('progress-fill');
+        const questionNumEl = document.getElementById('question-num');
+        const questionText = document.getElementById('question-text');
+        const multipleChoice = document.getElementById('multiple-choice');
+        const inputAnswer = document.getElementById('input-answer');
+        const subtractionInput = document.getElementById('subtraction-input');
+        const algebraicInput = document.getElementById('algebraic-input');
+        const hintBox = document.getElementById('hint-box');
+        const hintTitle = document.getElementById('hint-title');
+        const hintText = document.getElementById('hint-text');
+
+        // ربط الأحداث
+        document.getElementById('btn-addition').addEventListener('click', function() {
+            startGame('addition');
+        });
+
+        document.getElementById('btn-subtraction').addEventListener('click', function() {
+            startGame('subtraction');
+        });
+
+        document.getElementById('btn-algebraic').addEventListener('click', function() {
+            startGame('algebraic');
+        });
+
+        document.getElementById('btn-back').addEventListener('click', function() {
+            goToMenu();
+        });
+
+        document.getElementById('btn-next').addEventListener('click', function() {
+            nextQuestion();
+        });
+
+        document.getElementById('btn-check-input').addEventListener('click', function() {
+            checkInputAnswer();
+        });
+
+        document.getElementById('btn-check-subtraction').addEventListener('click', function() {
+            checkSubtractionAnswer();
+        });
+
+        document.getElementById('btn-check-algebraic').addEventListener('click', function() {
+            checkAlgebraicAnswer();
+        });
+
+        // دوال مساعدة
+        function formatNumberForDisplay(num) {
+            if (Number.isInteger(num)) {
+                return '(' + num + ')';
+            } else {
+                return '(' + num.toFixed(1) + ')';
+            }
+        }
+
+        function generateRandomNumber() {
+            const isDecimal = Math.random() > 0.5;
+            const isNegative = Math.random() > 0.5;
+            let num;
+            
+            if (isDecimal) {
+                num = (Math.random() * 20 - 10).toFixed(1);
+                num = parseFloat(num);
+            } else {
+                num = Math.floor(Math.random() * 21) - 10;
+            }
+            
+            if (num === 0) num = isNegative ? -1 : 1;
+            return num;
+        }
+
+        function formatNumber(num) {
+            if (Number.isInteger(num)) {
+                return num.toString();
+            } else {
+                return num.toFixed(1);
+            }
+        }
+
+        function generateAdditionQuestion() {
+            const num1 = generateRandomNumber();
+            const num2 = generateRandomNumber();
+            const correctAnswer = parseFloat((num1 + num2).toFixed(2));
+            
+            const isMultipleChoice = Math.random() > 0.5;
+            
+            let question = {
+                num1: num1,
+                num2: num2,
+                correctAnswer: correctAnswer,
+                type: isMultipleChoice ? 'multiple' : 'input',
+                questionText: formatNumberForDisplay(num1) + ' + ' + formatNumberForDisplay(num2) + ' = ?'
+            };
+            
+            if (isMultipleChoice) {
+                let options = [correctAnswer];
+                while (options.length < 3) {
+                    let wrongAnswer = parseFloat((correctAnswer + (Math.random() * 10 - 5)).toFixed(1));
+                    if (options.indexOf(wrongAnswer) === -1 && wrongAnswer !== correctAnswer) {
+                        options.push(wrongAnswer);
+                    }
+                }
+                options.sort(function() { return Math.random() - 0.5; });
+                question.options = options;
+            }
+            
+            return question;
+        }
+
+        function generateSubtractionQuestion() {
+            const num1 = generateRandomNumber();
+            const num2 = generateRandomNumber();
+            const opposite = -num2;
+            const correctAnswer = parseFloat((num1 + opposite).toFixed(2));
+            
+            return {
+                num1: num1,
+                num2: num2,
+                opposite: opposite,
+                correctAnswer: correctAnswer,
+                type: 'subtraction',
+                questionText: formatNumberForDisplay(num1) + ' - ' + formatNumberForDisplay(num2) + ' = ?'
+            };
+        }
+
+        function generateAlgebraicQuestion() {
+            const numTerms = Math.floor(Math.random() * 3) + 3;
+            const terms = [];
+            const operations = [];
+
+            terms.push(generateRandomNumber());
+            
+            for (let i = 1; i < numTerms; i++) {
+                terms.push(generateRandomNumber());
+                operations.push(Math.random() > 0.5 ? '+' : '-');
+            }
+
+            let expressionText = formatNumberForDisplay(terms[0]);
+            for (let i = 1; i < numTerms; i++) {
+                const op = operations[i - 1];
+                expressionText += ' ' + op + ' ' + formatNumberForDisplay(terms[i]);
+            }
+
+            const convertedTerms = [terms[0]];
+            for (let i = 1; i < numTerms; i++) {
+                if (operations[i - 1] === '-') {
+                    convertedTerms.push(-terms[i]);
+                } else {
+                    convertedTerms.push(terms[i]);
+                }
+            }
+
+            const positives = convertedTerms.filter(function(x) { return x > 0; });
+            const negatives = convertedTerms.filter(function(x) { return x < 0; });
+
+            const positiveSum = positives.reduce(function(a, b) { return a + b; }, 0);
+            const negativeSum = negatives.reduce(function(a, b) { return a + b; }, 0);
+            const finalResult = parseFloat((positiveSum + negativeSum).toFixed(2));
+
+            return {
+                originalExpression: expressionText,
+                convertedTerms: convertedTerms,
+                positives: positives,
+                negatives: negatives,
+                positiveSum: positiveSum,
+                negativeSum: negativeSum,
+                correctAnswer: finalResult,
+                type: 'algebraic'
+            };
+        }
+
+        function startGame(mode) {
+            gameMode = mode;
+            score = 0;
+            questionNum = 0;
+            
+            menuScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            const titleMap = {
+                'addition': '➕ الجمع',
+                'subtraction': '➖ الطرح',
+                'algebraic': '🧮 المجموع الجبري'
+            };
+            gameTitle.textContent = titleMap[mode] || 'لعبة الأعداد';
+            scoreEl.textContent = '0';
+            
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            answered = false;
+            questionNum++;
+            timer = 90;
+            
+            questionNumEl.textContent = questionNum;
+            timerEl.textContent = timer;
+            timerBox.classList.remove('warning');
+            progressFill.style.width = '100%';
+            hintBox.classList.add('hidden');
+            
+            multipleChoice.classList.add('hidden');
+            inputAnswer.classList.add('hidden');
+            subtractionInput.classList.add('hidden');
+            algebraicInput.classList.add('hidden');
+            
+            if (gameMode === 'addition') {
+                currentQuestion = generateAdditionQuestion();
+            } else if (gameMode === 'subtraction') {
+                currentQuestion = generateSubtractionQuestion();
+            } else if (gameMode === 'algebraic') {
+                currentQuestion = generateAlgebraicQuestion();
+            }
+            
+            questionText.textContent = currentQuestion.originalExpression || currentQuestion.questionText;
+            
+            if (currentQuestion.type === 'multiple') {
+                showMultipleChoice();
+            } else if (currentQuestion.type === 'input') {
+                showInputAnswer();
+            } else if (currentQuestion.type === 'subtraction') {
+                showSubtractionInput();
+            } else if (currentQuestion.type === 'algebraic') {
+                showAlgebraicInput();
+            }
+            
+            startTimer();
+        }
+
+        function showMultipleChoice() {
+            multipleChoice.classList.remove('hidden');
+            multipleChoice.innerHTML = '';
+            
+            currentQuestion.options.forEach(function(option) {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = formatNumberForDisplay(option);
+                btn.addEventListener('click', function() {
+                    checkMultipleChoice(option, btn);
+                });
+                multipleChoice.appendChild(btn);
+            });
+        }
+
+        function showInputAnswer() {
+            inputAnswer.classList.remove('hidden');
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+        }
+
+        function showSubtractionInput() {
+            subtractionInput.classList.remove('hidden');
+            const container = document.getElementById('subtraction-expression');
+            container.innerHTML = '';
+            
+            const span1 = document.createElement('span');
+            span1.textContent = '(';
+            const input1 = document.createElement('input');
+            input1.type = 'number';
+            input1.step = '0.1';
+            input1.id = 'first-term';
+            input1.placeholder = formatNumber(currentQuestion.num1);
+            const span2 = document.createElement('span');
+            span2.textContent = ')';
+            
+            const plusSpan = document.createElement('span');
+            plusSpan.textContent = '+';
+            
+            const span3 = document.createElement('span');
+            span3.textContent = '(';
+            const input2 = document.createElement('input');
+            input2.type = 'number';
+            input2.step = '0.1';
+            input2.id = 'opposite-term';
+            input2.placeholder = formatNumber(currentQuestion.opposite);
+            const span4 = document.createElement('span');
+            span4.textContent = ')';
+            
+            const equalSpan = document.createElement('span');
+            equalSpan.textContent = '=';
+            
+            const input3 = document.createElement('input');
+            input3.type = 'number';
+            input3.step = '0.1';
+            input3.id = 'result-term';
+            input3.placeholder = 'النتيجة';
+            
+            container.appendChild(span1);
+            container.appendChild(input1);
+            container.appendChild(span2);
+            container.appendChild(plusSpan);
+            container.appendChild(span3);
+            container.appendChild(input2);
+            container.appendChild(span4);
+            container.appendChild(equalSpan);
+            container.appendChild(input3);
+            
+            document.getElementById('first-term').focus();
+        }
+
+        function showAlgebraicInput() {
+            algebraicInput.classList.remove('hidden');
+            const container = document.getElementById('algebraic-expression');
+            container.innerHTML = '';
+            
+            const terms = currentQuestion.convertedTerms;
+            for (let i = 0; i < terms.length; i++) {
+                if (i > 0) {
+                    const plusSpan = document.createElement('span');
+                    plusSpan.textContent = '+';
+                    container.appendChild(plusSpan);
+                }
+                
+                const span1 = document.createElement('span');
+                span1.textContent = '(';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.1';
+                input.className = 'algebraic-term';
+                input.dataset.index = i;
+                input.placeholder = formatNumber(terms[i]);
+                const span2 = document.createElement('span');
+                span2.textContent = ')';
+                
+                container.appendChild(span1);
+                container.appendChild(input);
+                container.appendChild(span2);
+            }
+            
+            document.getElementById('positive-sum').value = '';
+            document.getElementById('negative-sum').value = '';
+            document.getElementById('algebraic-result').value = '';
+            
+            const firstInput = document.querySelector('.algebraic-term');
+            if (firstInput) firstInput.focus();
+        }
+
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(function() {
+                if (answered) return;
+                timer--;
+                timerEl.textContent = timer;
+                progressFill.style.width = ((timer / 90) * 100) + '%';
+                if (timer <= 15) {
+                    timerBox.classList.add('warning');
+                }
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function timeUp() {
+            answered = true;
+            updateScore(false);
+            if (gameMode === 'algebraic') {
+                showAlgebraicHint(false, false, false, false, false);
+            } else {
+                showHint(false);
+            }
+        }
+
+        function checkMultipleChoice(selected, btn) {
+            if (answered) return;
+            answered = true;
+            stopTimer();
+            
+            const isCorrect = Math.abs(selected - currentQuestion.correctAnswer) < 0.01;
+            
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(function(b) {
+                b.disabled = true;
+                const numText = b.textContent.replace(/[()]/g, '');
+                const num = parseFloat(numText);
+                if (Math.abs(num - currentQuestion.correctAnswer) < 0.01) {
+                    b.classList.add('correct');
+                }
+            });
+            
+            if (!isCorrect) {
+                btn.classList.add('wrong');
+            }
+            
+            updateScore(isCorrect);
+            showHint(isCorrect);
+            createSparkles(isCorrect);
+        }
+
+        function checkInputAnswer() {
+            if (answered) return;
+            const userAnswer = parseFloat(document.getElementById('answer-input').value);
+            if (isNaN(userAnswer)) {
+                alert('الرجاء إدخال رقم صحيح');
+                return;
+            }
+            answered = true;
+            stopTimer();
+            const isCorrect = Math.abs(userAnswer - currentQuestion.correctAnswer) < 0.01;
+            updateScore(isCorrect);
+            showHint(isCorrect);
+            createSparkles(isCorrect);
+        }
+
+        function checkSubtractionAnswer() {
+            if (answered) return;
+            const firstTerm = parseFloat(document.getElementById('first-term').value);
+            const oppositeTerm = parseFloat(document.getElementById('opposite-term').value);
+            const resultTerm = parseFloat(document.getElementById('result-term').value);
+            if (isNaN(firstTerm) || isNaN(oppositeTerm) || isNaN(resultTerm)) {
+                alert('الرجاء إدخال جميع الأرقام');
+                return;
+            }
+            answered = true;
+            stopTimer();
+            const isFirstCorrect = Math.abs(firstTerm - currentQuestion.num1) < 0.01;
+            const isOppositeCorrect = Math.abs(oppositeTerm - currentQuestion.opposite) < 0.01;
+            const isResultCorrect = Math.abs(resultTerm - currentQuestion.correctAnswer) < 0.01;
+            const isCorrect = isFirstCorrect && isOppositeCorrect && isResultCorrect;
+            updateScore(isCorrect);
+            showHint(isCorrect, true);
+            createSparkles(isCorrect);
+        }
+
+        function checkAlgebraicAnswer() {
+            if (answered) return;
+            const termInputs = document.querySelectorAll('.algebraic-term');
+            let termsCorrect = true;
+            for (let i = 0; i < termInputs.length; i++) {
+                const val = parseFloat(termInputs[i].value);
+                if (isNaN(val) || Math.abs(val - currentQuestion.convertedTerms[i]) >= 0.01) {
+                    termsCorrect = false;
+                    break;
+                }
+            }
+            const posInput = parseFloat(document.getElementById('positive-sum').value);
+            const negInput = parseFloat(document.getElementById('negative-sum').value);
+            const resultInput = parseFloat(document.getElementById('algebraic-result').value);
+            if (isNaN(posInput) || isNaN(negInput) || isNaN(resultInput)) {
+                alert('الرجاء إدخال جميع القيم');
+                return;
+            }
+            answered = true;
+            stopTimer();
+            const isPosCorrect = Math.abs(posInput - currentQuestion.positiveSum) < 0.01;
+            const isNegCorrect = Math.abs(negInput - currentQuestion.negativeSum) < 0.01;
+            const isResultCorrect = Math.abs(resultInput - currentQuestion.correctAnswer) < 0.01;
+            const isCorrect = termsCorrect && isPosCorrect && isNegCorrect && isResultCorrect;
+            updateScore(isCorrect);
+            showAlgebraicHint(isCorrect, termsCorrect, isPosCorrect, isNegCorrect, isResultCorrect);
+            createSparkles(isCorrect);
+        }
+
+        function updateScore(isCorrect) {
+            if (isCorrect) {
+                score += 2;
+            } else {
+                score -= 1;
+            }
+            scoreEl.textContent = score;
+        }
+
+        function showHint(isCorrect, isSubtraction) {
+            hintBox.classList.remove('hidden', 'correct', 'wrong');
+            hintBox.classList.add(isCorrect ? 'correct' : 'wrong');
+            hintTitle.textContent = isCorrect ? '✅ أحسنت! إجابة صحيحة' : '❌ إجابة خاطئة';
+            
+            if (isSubtraction) {
+                hintText.innerHTML = 
+                    formatNumberForDisplay(currentQuestion.num1) + ' - ' + formatNumberForDisplay(currentQuestion.num2) + ' =<br>' +
+                    formatNumberForDisplay(currentQuestion.num1) + ' + ' + formatNumberForDisplay(currentQuestion.opposite) + ' =<br>' +
+                    formatNumberForDisplay(currentQuestion.correctAnswer);
+            } else {
+                hintText.textContent = 'الجواب الصحيح: ' + formatNumberForDisplay(currentQuestion.correctAnswer);
+            }
+        }
+
+        function showAlgebraicHint(isCorrect, termsCorrect, isPosCorrect, isNegCorrect, isResultCorrect) {
+            hintBox.classList.remove('hidden', 'correct', 'wrong');
+            hintBox.classList.add(isCorrect ? 'correct' : 'wrong');
+            hintTitle.textContent = isCorrect ? '✅ أحسنت! كل الخطوات صحيحة' : '❌ هناك خطأ في إحدى الخطوات';
+            
+            let explanation = 'التحويل الصحيح:<br>' + currentQuestion.convertedTerms.map(formatNumberForDisplay).join(' + ') + '<br><br>';
+            explanation += formatNumberForDisplay(currentQuestion.positiveSum) + ' + ' + formatNumberForDisplay(currentQuestion.negativeSum) + ' = ' + formatNumberForDisplay(currentQuestion.correctAnswer);
+            
+            hintText.innerHTML = explanation;
+        }
+
+        function createSparkles(isCorrect) {
+            if (!isCorrect) return;
+            const container = document.querySelector('.question-container');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(function() {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    container.appendChild(sparkle);
+                    setTimeout(function() { sparkle.remove(); }, 1000);
+                }, i * 100);
+            }
+        }
+
+        function goToMenu() {
+            stopTimer();
+            answered = false;
+            score = 0;
+            questionNum = 0;
+            timer = 90;
+            currentQuestion = null;
+            gameMode = '';
+            gameScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden');
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkInputAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
